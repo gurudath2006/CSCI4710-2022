@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+	<style>
+	.chart-pie{
+		margin-top: 75px;
+	}
+	.btn-chart{
+		margin-top: 25px;
+	}
+	.user-input-submit {
+		margin-left:15px;
+	}
+	
+	
+	</style>
+  <!-- If you want to use Google Chart, you need to import this library -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  
+  <script type="text/javascript">
+	
+
+   // array of json objects
+    var classmate_data = [
+      {
+        'name'      : 'John',
+        'shadow'    : 'no',
+        'galic'     : 'no',
+        'complexion': 'pale'
+      },
+      {
+        'name'      : 'Lee',
+        'shadow'    : 'yes',
+        'galic'     : 'no',
+        'complexion': 'pale'
+      },
+      {
+        'name'      : 'Emma',
+        'shadow'    : 'no',
+        'galic'     : 'yes',
+        'complexion': 'brown'
+      },
+      {
+        'name'      : 'Ava',
+        'shadow'    : 'yes',
+        'galic'     : 'yes',
+        'complexion': 'olive '
+      },
+      {
+        'name'      : 'Alex',
+        'shadow'    : 'no',
+        'galic'     : 'no',
+        'complexion': 'brown'
+      },
+    ]; 
+
+    
+
+    // Load the Visualization API and the corechart package.
+    google.charts.load('current', {'packages':['corechart']});
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(drawChart);
+    
+    // Callback that creates and populates a data table,
+    // instantiates the pie chart, passes in the data and
+    // draws it.
+    function drawChart() {
+	  hide_all();
+	  document.getElementById("chart-visualization").style.display = "block";
+	  // Activate tabindex
+	  var navElement = document.getElementById("nav-chart");
+	  navElement.classList.add("active");
+	  
+      var data = new google.visualization.DataTable();
+      // classmate_data_processing(classmate_data, data);
+      classmate_data_processing(data);
+
+  
+      // Set chart options
+      var options = {'title':'How many vampires in the class?',
+                     'width':400,
+                     'height':300};
+
+      // Instantiate and draw our chart, passing in some options.
+      var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
+
+    // model of MVC
+    // function classmate_data_processing(input_data, result_data){
+    function classmate_data_processing(result_data){
+      
+	  var num_human = 0;
+      var num_vampire = 0;
+	  var method = document.getElementById('method').value;
+	  
+	  for (var i =  0; i <= classmate_data.length - 1; i++) {
+    	if(method == "1") // Random Guess
+		{
+			var random = Math.random() < 0.5;
+			if(random){
+			  num_vampire ++;
+			}
+			else{
+			  num_human ++;
+			}
+		}
+		else if (method == "2") // Threshold based
+		{
+			var points = 0;
+			if(classmate_data[i]['shadow'] == 'no'){
+			  points = points + 4;
+			}
+
+			if(classmate_data[i]['complexion'] == 'pale'){
+			  points = points + 3;
+			}
+			
+			if(classmate_data[i]['galic'] == 'no'){
+			  points = points + 3;
+			}
+			
+			if(points > 6)
+			{
+				num_vampire ++;
+			}
+			else
+			{
+				num_human ++;
+			}
+		}
+ 	  
+       if(classmate_data[i]['shadow'] == 'no'){
+          num_vampire ++;
+        }
+        else{
+          num_human ++;
+        }
+      }
+      // Create the data table.
+      result_data.addColumn('string', 'Element');
+      result_data.addColumn('number', 'Count');
+      result_data.addRows([     
+        ['Human', num_human],
+        ['Vampire', num_vampire]
+      ]);
+
+    }
+	
+	function show_user_info()
+	{
+		hide_all();
+		document.getElementById("user-input-form").style.display = "block";
+		
+		// Activate tab
+		var navElement = document.getElementById("nav-input");
+	    navElement.classList.add("active");
+	}
+	function output_user_info(){	
+		
+		 var name = document.getElementById('name').value;
+		 var complexion = document.getElementById('complexion').value;
+		 var galic = document.getElementById('galic_checkbox').checked == true ? "yes" : "no";
+		 var shadow = document.getElementById('shadow_checkbox').checked == true ? "yes" : "no";
+		 classmate_data.push({ 
+			"name" : name,
+			"shadow"  : shadow,
+			"galic"  : galic,
+			'complexion': complexion
+		});
+		
+		document.getElementById('user_info').innerHTML = "User inserted successfully";
+	}
+	
+	function hide_all()
+	{
+		document.getElementById("chart-visualization").style.display = "none";
+		document.getElementById("user-input-form").style.display = "none";
+		document.getElementById("students-table").style.display = "none";
+		
+		// Deacitivate tabs
+		
+		var navElement = document.getElementById("nav-list");
+	    navElement.classList.remove("active");
+		
+		navElement = document.getElementById("nav-chart");
+	    navElement.classList.remove("active");
+		
+		navElement = document.getElementById("nav-input");
+	    navElement.classList.remove("active");
+	}
+	function build_table(){
+		hide_all();
+		document.getElementById("students-table").style.display = "block";
+		
+		// Activate tab
+		var navElement = document.getElementById("nav-list");
+	    navElement.classList.add("active");
+	  
+	  
+      var table = document.getElementById("students_table");
+      
+	  
+	  // Remove all existing rows
+	  var row_count = table.rows.length;
+	  for (var i =  1; i <= row_count-1; i++) {
+		 var index = i;
+		 table.deleteRow(row_count-i);
+	  }
+	  
+	  
+	   for (var i =  0; i <= classmate_data.length - 1; i++) {
+		  var index = i+1;
+		  var row = table.insertRow(index);
+		  var cell1 = row.insertCell(0);
+		  var cell2 = row.insertCell(1);
+		  var cell3 = row.insertCell(2);
+		  var cell4 = row.insertCell(3);
+		  // Add some text to the new cells:
+		  cell1.innerHTML = classmate_data[i]['name'] ;
+		  cell2.innerHTML = classmate_data[i]['complexion'] ;
+		  cell3.innerHTML = classmate_data[i]['galic'];
+		  cell4.innerHTML = classmate_data[i]['shadow'];
+	    }
+	  
+    }
+	
+  </script>
+</head>
+<body>
+ 
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <ul class="nav navbar-nav">
+	
+      <li class="nav-item active" id="nav-chart">
+        <a class="nav-link" href="#" onclick="drawChart();">Visualize Chart</a>
+      </li>
+	  <li class="nav-item" id="nav-list">
+        <a class="nav-link" href="#" onclick="build_table()">View Students List</a>
+      </li>
+      <li class="nav-item" id="nav-input">
+        <a class="nav-link" href="#" onclick="show_user_info()">Add Student </a>
+      </li>
+      
+    </ul>
+  </div>
+</nav>
+
+
+<div class="container" id="user-input-form" style="display:none">
+  <h2>Add Student Details</h2>
+  <div class="container">
+  <form>
+    <div class="form-row">
+      <div class="form-group col-md-12">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" placeholder="Name">
+      </div>     
+    </div>
+	<div class="form-row">
+      <div class="form-group col-md-4">
+        <label for="complexion">Complexion</label>
+       
+	   <select class="form-control" id="complexion">
+			  <option value='pale'>Pale</option>
+			  <option value='olive'>Olive</option>
+			  <option value='brown'>Brown</option>
+			</select> 
+      </div>     
+    </div>
+    <div class="form-row">
+      <!-- without this, your rows will not be aligned -->
+      <div class="form-group col-md-12">
+        <div class="checkbox">
+          <label><input type="checkbox" id="galic_checkbox">Galic</label>
+        </div>
+        <div class="checkbox">
+          <label><input type="checkbox" id="shadow_checkbox">Shadow</label>
+        </div>
+      </div>
+    </div>
+
+  </form>
+  </div>
+  <div class="container user-input-submit">
+  <button class="btn btn-primary" onclick="output_user_info()">Submit</button>
+  
+  <p id="user_info"></p>
+  </div>
+</div>
+
+<div class="container" id="chart-visualization" style="display:none">
+	<div class="form-row">
+		<div class="form-group col-md-4">
+			<label for="method">Select Model Logic:</label>
+			<select class="form-control" id="method">
+			  <option value='1'>Random Guess</option>
+			  <option value='2'>Threshold Based Method</option>
+			</select>   		
+		</div>
+		<div class="form-group col-md-4">
+			<button type="button" class="btn-chart" onclick="drawChart()">Display Chart</button>
+		</div>
+	</div>
+
+	<div class="form-row">
+	  <!--Div that will hold the pie chart-->
+	  <div id="chart_div" class="chart-pie"></div>
+	 </div> 
+</div>
+
+<div class="container" id="students-table">
+ <h2>Students list</h2>
+ <table class="table table-bordered" id="students_table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Complexion</th>
+		<th>Garlic</th>
+		<th>Shadow</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html> 
